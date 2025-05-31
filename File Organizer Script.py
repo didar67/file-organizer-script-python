@@ -36,7 +36,7 @@ def select_files(folder_path):
         print(f"\n Done! {organized} file(s) organized successfully.")
 
 # Input from user
-folder = input(" Enter the folder path : ").strip()
+folder = input(" Enter the folder path you want to organize : ").strip()
 folder = folder.replace("\\", "/")
 
 # Validate path before running
