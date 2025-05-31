@@ -25,7 +25,7 @@ def select_files(folder_path):
             shutil.move(full_file_path, folder_for_extension)
 
 #  Input from user
-folder = input("Enter a folder path: ").strip()
+folder = input("Enter a path: ").strip()
 folder = folder.replace("\\", "/")
 
 #  Call the function
