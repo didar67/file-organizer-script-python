@@ -54,6 +54,19 @@ def setup_logger(log_file: str = "file_organizer.log") -> logging.Logger:
     return logger
 
 
+def get_logger(log_file: str = "file_organizer.log") -> logging.Logger:
+    """
+    Get a configured logger instance.
+
+    Args:
+        log_file (str): The filename (with path) where logs will be written.
+
+    Returns:
+        logging.Logger: Configured logger instance.
+    """
+    return setup_logger(log_file)
+
+
 # If this module runs directly (for quick test)
 if __name__ == "__main__":
     log = setup_logger()
