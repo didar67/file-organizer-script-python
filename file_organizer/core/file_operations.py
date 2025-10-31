@@ -1,6 +1,4 @@
 """
-file_operations.py
-------------------
 Core module for File Organizer Script.
 
 Handles:
@@ -11,8 +9,6 @@ Handles:
 - Logging via core/logger.py
 - Reading defaults from config.yaml
 
-Author: Didarul Islam
-Python Version: 3.13+
 """
 
 import os
