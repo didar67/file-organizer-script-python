@@ -1,0 +1,12 @@
+# Configuration file for File Organizer Script
+
+app:
+  name: "File Organizer"
+  version: "1.0.0"
+
+logging:
+  log_file: "logs/file_organizer.log"
+  log_level: "INFO"
+
+paths:
+  default_folder: "./test_files"
