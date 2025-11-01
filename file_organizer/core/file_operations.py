@@ -23,15 +23,20 @@ class Organizer:
     Organizer class handles file organization based on extensions.
     """
 
-    def __init__(self, folder_path: str | None = None):
+    def __init__(self, base_path: str | None = None, dry_run: bool = False, config: dict | None = None):
         """
-        Initialize the Organizer with folder path.
+        Initialize the Organizer with folder path, dry run flag, and config.
 
         Args:
-            folder_path (str | None): Path to scan and organize files. If None, use default from config.
+            base_path (str | None): Path to scan and organize files. If None, use default from config.
+            dry_run (bool): If True, simulate operations without making changes.
+            config (dict | None): Configuration dictionary.
         """
-        config = load_config()
-        self.folder_path = folder_path or config["paths"]["default_folder"]
+        if config is None:
+            config = load_config()
+        self.base_path = base_path or config["paths"]["default_folder"]
+        self.dry_run = dry_run
+        self.config = config
 
     def organize_files(self) -> int:
         """
@@ -41,23 +46,25 @@ class Organizer:
             int: Number of files organized.
         """
         try:
-            file_names = os.listdir(self.folder_path)
+            file_names = os.listdir(self.base_path)
             organized_count = 0
-            logger.info(f"Scanning folder: {self.folder_path}")
+            logger.info(f"Scanning folder: {self.base_path}")
 
             for file in file_names:
-                full_path = os.path.join(self.folder_path, file)
+                full_path = os.path.join(self.base_path, file)
 
                 if os.path.isfile(full_path):
                     ext = file.split('.')[-1].upper()
-                    target_folder = os.path.join(self.folder_path, f"{ext} Files")
+                    target_folder = os.path.join(self.base_path, f"{ext} Files")
 
                     if not os.path.exists(target_folder):
-                        os.makedirs(target_folder)
+                        if not self.dry_run:
+                            os.makedirs(target_folder)
                         logger.info(f"Created folder: {target_folder}")
 
-                    shutil.move(full_path, os.path.join(target_folder, file))
-                    logger.info(f"Moved {file} → {target_folder}")
+                    if not self.dry_run:
+                        shutil.move(full_path, os.path.join(target_folder, file))
+                    logger.info(f"Moved {file} to {target_folder}")
                     organized_count += 1
 
             if organized_count == 0:
@@ -76,3 +83,9 @@ class Organizer:
         except Exception as e:
             logger.error(f"Unexpected error: {e}")
             return 0
+
+    def run(self):
+        """
+        Run the file organization process.
+        """
+        self.organize_files()
