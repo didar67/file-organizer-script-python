@@ -35,6 +35,7 @@ python main.py --path /path/to/folder --verbose
 
 ```
 file_organizer/
+├── config/           # YAML configuration files (e.g., default paths, log file)
 ├── cli/              # CLI argument parsing
 ├── core/             # Core logic & file operations
 ├── utils/            # Helper functions & YAML config loader
