@@ -1,25 +1,27 @@
 #!/usr/bin/env python3
 """
-File Organizer – 2025 Production-Ready Edition
-Organizes files by extension using configurable groups with CLI, logging and dry-run support.
+File Organizer – Final 2025 Production-Ready Version
+Clean, typed, documented, and optimized file organization tool.
 """
+
+from __future__ import annotations
 
 import logging
 import shutil
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict
 
 import click
 import yaml
 from dotenv import load_dotenv
 
 
-# Load environment variables (supports LOG_LEVEL override)
+# Load environment variables early
 load_dotenv()
 
 
 def setup_logging(level: str = "INFO") -> None:
-    """Configure structured logging for consistent output."""
+    """Configure clean structured logging with timestamps."""
     logging.basicConfig(
         level=getattr(logging, level.upper()),
         format="%(asctime)s | %(levelname)-8s | %(message)s",
@@ -27,81 +29,77 @@ def setup_logging(level: str = "INFO") -> None:
     )
 
 
-def load_config(path: Path = Path("config.yaml")) -> Dict:
-    """Load YAML configuration with safe fallback."""
-    if not path.exists():
-        logging.warning(f"Config file {path} not found – using defaults")
+def load_config(config_path: Path = Path("config.yaml")) -> Dict:
+    """Load YAML config safely – returns empty dict if missing."""
+    if not config_path.is_file():
+        logging.warning(f"Config not found: {config_path} → using defaults")
         return {}
-    with open(path, "r", encoding="utf-8") as f:
+    with config_path.open("r", encoding="utf-8") as f:
         return yaml.safe_load(f) or {}
 
 
-def get_extension_mapping(config: Dict) -> Dict[str, List[str]]:
-    """Build extension → folder mapping from config."""
-    groups = config.get("extension_groups", {})
-    mapping = {}
-    for folder, extensions in groups.items():
+def build_extension_map(config: Dict) -> Dict[str, str]:
+    """Create lowercase extension → folder mapping from config groups."""
+    mapping: Dict[str, str] = {}
+    for folder, extensions in config.get("extension_groups", {}).items():
         for ext in extensions:
             mapping[ext.lower()] = folder
     return mapping
 
 
-def organize_files(target_dir: Path, mapping: Dict[str, str], dry_run: bool = False) -> int:
-    """Move files to corresponding folders. Returns number of moved files."""
+def organize_directory(target: Path, mapping: Dict[str, str], dry_run: bool = False) -> int:
+    """Core logic – moves files to correct folders. Returns processed count."""
+    target = target.expanduser().resolve()
+    if not target.is_dir():
+        raise NotADirectoryError(f"Target directory does not exist: {target}")
+
     moved = 0
-    target_dir = target_dir.expanduser().resolve()
-
-    if not target_dir.is_dir():
-        raise NotADirectoryError(f"Directory not found: {target_dir}")
-
-    for item in target_dir.iterdir():
-        if not item.is_file():
+    for file_path in target.iterdir():
+        if not file_path.is_file():
             continue
 
-        ext = item.suffix[1:].lower()  # without dot
+        ext = file_path.suffix[1:].lower()
         dest_folder = mapping.get(ext, "Others")
-
-        dest_dir = target_dir / dest_folder
+        dest_dir = target / dest_folder
         dest_dir.mkdir(exist_ok=True)
+        dest_path = dest_dir / file_path.name
 
-        dest_path = dest_dir / item.name
-
-        if item.parent != dest_dir:
+        if file_path.parent != dest_dir:
             if dry_run:
-                logging.info(f"[DRY-RUN] Would move: {item.name} → {dest_folder}/")
+                logging.info(f"[DRY-RUN] {file_path.name} → {dest_folder}/")
             else:
                 if dest_path.exists():
-                    logging.warning(f"Skipped (exists): {item.name}")
+                    logging.warning(f"Skipped (already exists): {file_path.name}")
                 else:
-                    shutil.move(str(item), str(dest_path))
-                    logging.info(f"Moved: {item.name} → {dest_folder}/")
+                    shutil.move(str(file_path), str(dest_path))
+                    logging.info(f"Moved: {file_path.name} → {dest_folder}/")
             moved += 1
 
     return moved
 
 
 @click.command()
-@click.option("--directory", "-d", default=".", help="Target directory (default: current)")
-@click.option("--config", "-c", default="config.yaml", help="Path to config file")
-@click.option("--dry-run", is_flag=True, help="Show what would be moved without doing it")
-@click.option("--verbose", "-v", is_flag=True, help="Enable DEBUG logging")
-def cli(directory: str, config: str, dry_run: bool, verbose: bool) -> None:
-    """File Organizer CLI – production-ready entry point."""
-    log_level = "DEBUG" if verbose else (load_dotenv().get("LOG_LEVEL", "INFO"))
+@click.option("-d", "--directory", default=".", help="Directory to organize")
+@click.option("-c", "--config", default="config.yaml", help="Path to config file")
+@click.option("--dry-run", is_flag=True, help="Preview changes without moving files")
+@click.option("-v", "--verbose", is_flag=True, help="Enable detailed DEBUG output")
+def main(directory: str, config: str, dry_run: bool, verbose: bool) -> None:
+    """Production-ready CLI – clean, typed, and fully documented."""
+    log_level = "DEBUG" if verbose else load_dotenv().get("LOG_LEVEL", "INFO")
     setup_logging(log_level)
 
-    logging.info("File Organizer started")
-    config_data = load_config(Path(config))
-    target = Path(directory)
-    mapping = get_extension_mapping(config_data)
+    logging.info("File Organizer v2025 – starting")
+    cfg = load_config(Path(config))
+    mapping = build_extension_map(cfg)
 
     try:
-        count = organize_files(target, mapping, dry_run)
-        logging.info(f"Finished – {'(dry-run) ' if dry_run else ''}{count} file(s) processed")
-    except Exception as e:
-        logging.error(f"Failed: {e}")
-        raise click.Abort()
+        count = organize_directory(Path(directory), mapping, dry_run)
+        mode = " (dry-run)" if dry_run else ""
+        logging.info(f"Completed{mode} – {count} file(s) processed successfully")
+    except Exception as exc:
+        logging.error(f"Operation failed: {exc}")
+        raise click.Abort() from exc
 
 
 if __name__ == "__main__":
-    cli()
+    main()
