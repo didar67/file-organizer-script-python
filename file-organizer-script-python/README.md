@@ -1,17 +1,21 @@
-# File Organizer (Python) – 2025 Edition
+# File Organizer – 2025 Edition
 
-A clean, production-ready tool to automatically organize files by extension.
+A clean, production-ready Python tool that automatically organizes files by extension.
 
-## Features (in progress)
-- Click-based CLI with rich options
-- YAML configuration
-- Comprehensive logging
-- Dry-run mode
-- Graceful error handling
+## Features
+- Modern Click CLI with `--directory`, `--config`, `--dry-run`, `--verbose`
+- Fully configurable via `config.yaml` – no code changes required
+- Structured logging + `.env` support for log level override
+- Safe dry-run mode for preview
+- Complete type hints, docstrings, and 2025 Python best practices
 
-## Current Status
-- Project structure initialized
-- Legacy code preserved in `legacy/`
-- Next: CLI + config + core logic
+## Quick Start
+```bash
+# Organize current folder
+python main.py
 
-More updates coming soon!
+# Preview changes with verbose output
+python main.py --dry-run -v
+
+# Organize Downloads folder
+python main.py -d ~/Downloads
