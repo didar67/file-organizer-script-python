@@ -1,0 +1,13 @@
+# Default configuration – feel free to customize
+target_directory: "."
+dry_run: false
+log_level: INFO
+
+extension_groups:
+  Images:     ["jpg", "jpeg", "png", "gif", "webp", "bmp", "svg", "tiff"]
+  Videos:     ["mp4", "mkv", "avi", "mov", "wmv", "flv", "webm"]
+  Documents:  ["pdf", "doc", "docx", "txt", "rtf", "odt", "md"]
+  Audio:      ["mp3", "wav", "flac", "aac", "ogg", "m4a"]
+  Archives:   ["zip", "rar", "7z", "tar", "gz"]
+  Code:       ["py", "js", "ts", "java", "cpp", "c", "cs", "go", "rs", "php"]
+  Others:     []
