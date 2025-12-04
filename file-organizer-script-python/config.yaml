@@ -1,13 +1,23 @@
-# Default configuration – feel free to customize
+# Default configuration – fully customizable
 target_directory: "."
 dry_run: false
-log_level: INFO
 
+# Logging configuration
+logging:
+  level: INFO                    # DEBUG, INFO, WARNING, ERROR, CRITICAL
+  file_path: "logs/file_organizer.log"
+  max_size_mb: 5                  # Max size per log file in MB
+  backup_count: 5                 # Number of old log files to keep
+  console_format: "%(levelname)-8s | %(message)s"
+  file_format: "%(asctime)s | %(levelname)-8s | %(name)s | %(funcName)s | %(message)s"
+
+# File organization rules
 extension_groups:
-  Images:     ["jpg", "jpeg", "png", "gif", "webp", "bmp", "svg", "tiff"]
-  Videos:     ["mp4", "mkv", "avi", "mov", "wmv", "flv", "webm"]
-  Documents:  ["pdf", "doc", "docx", "txt", "rtf", "odt", "md"]
-  Audio:      ["mp3", "wav", "flac", "aac", "ogg", "m4a"]
-  Archives:   ["zip", "rar", "7z", "tar", "gz"]
-  Code:       ["py", "js", "ts", "java", "cpp", "c", "cs", "go", "rs", "php"]
+  Images:     ["jpg", "jpeg", "png", "gif", "webp", "bmp", "svg", "tiff", "ico"]
+  Videos:     ["mp4", "mkv", "avi", "mov", "wmv", "flv", "webm", "m4v"]
+  Documents:  ["pdf", "doc", "docx", "txt", "rtf", "odt", "md", "xls", "xlsx", "ppt", "pptx"]
+  Audio:      ["mp3", "wav", "flac", "aac", "ogg", "m4a", "wma"]
+  Archives:   ["zip", "rar", "7z", "tar", "gz", "bz2", "xz"]
+  Code:       ["py", "js", "ts", "java", "cpp", "c", "cs", "go", "rs", "php", "html", "css", "json"]
+  Executables: ["exe", "msi", "deb", "rpm", "dmg", "AppImage"]
   Others:     []
