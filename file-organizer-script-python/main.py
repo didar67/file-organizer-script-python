@@ -5,7 +5,9 @@ Clean, typed, documented, and optimized file organization tool.
 """
 
 from __future__ import annotations
+from logging.handlers import RotatingFileHandler
 
+import os
 import logging
 import shutil
 from pathlib import Path
@@ -20,13 +22,25 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-def setup_logging(level: str = "INFO") -> None:
-    """Configure clean structured logging with timestamps."""
-    logging.basicConfig(
-        level=getattr(logging, level.upper()),
-        format="%(asctime)s | %(levelname)-8s | %(message)s",
-        datefmt="%Y-%m-%d %H:%M:%S",
-    )
+def setup_logging(level: str = "INFO", log_file: str = "logs/file_organizer.log") -> None:
+    """Configure structured logging with console + rotating file output."""
+    os.makedirs(os.path.dirname(log_file), exist_ok=True)
+
+    logger = logging.getLogger()
+    logger.setLevel(getattr(logging, level.upper()))
+    logger.handlers.clear()  # prevent duplicate handlers in reloads
+
+    # Rotating file handler – 5 MB per file, keep 5 backups
+    file_handler = RotatingFileHandler(log_file, maxBytes=5_000_000, backupCount=5)
+    file_handler.setFormatter(logging.Formatter(
+        "%(asctime)s | %(levelname)-8s | %(name)s | %(funcName)s | %(message)s"
+    ))
+    logger.addHandler(file_handler)
+
+    # Clean console output
+    console_handler = logging.StreamHandler()
+    console_handler.setFormatter(logging.Formatter("%(levelname)-8s | %(message)s"))
+    logger.addHandler(console_handler)
 
 
 def load_config(config_path: Path = Path("config.yaml")) -> Dict:
